@@ -1,4 +1,4 @@
 source "http://rubygems.org"
 
-# Specify your gem's dependencies in redis_column.gemspec
+# Specify your gem's dependencies in redis-column.gemspec
 gemspec

@@ -1,6 +1,6 @@
 require "active_record"
 require "redis"
-require File.dirname(__FILE__) + "/redis_column/version"
+require File.dirname(__FILE__) + "/redis-column/version"
 
 module RedisColumn
   

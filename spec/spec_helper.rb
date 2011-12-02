@@ -18,7 +18,7 @@ rescue Bundler::GemNotFound
 end
 
 Bundler.require
-require File.expand_path('../../lib/redis_column', __FILE__)
+require File.expand_path('../../lib/redis-column', __FILE__)
 require "fakeredis"
 db_name = ENV['DB'] || 'sqlite3'
 database_yml = File.expand_path('../config/database.yml', __FILE__)
