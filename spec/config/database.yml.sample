@@ -1,0 +1,19 @@
+sqlite3:
+  adapter: sqlite3
+  database: redis_column.sqlite3
+
+mysql:
+  adapter: mysql2
+  hostname: localhost
+  username: root
+  password:
+  database: redis_column
+  charset: utf8
+  
+postgresql:
+  adapter: postgresql
+  hostname: localhost
+  username: postgres
+  password:
+  database: redis_column
+  encoding: utf8
