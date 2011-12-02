@@ -33,27 +33,27 @@ describe DescriptionInRedisModel do
     DescriptionInRedisModel.redis_columns.should == [:description]
   end
   
-  it "should have a default redis key of ':model_name|:id|:column_name' for the description attribute" do
+  it "should have a default redis key of '<model_name>:<id>:<column_name>' for the description attribute" do
     instance = DescriptionInRedisModel.create
-    instance.redis_key(:description).should == "description_in_redis_model|#{instance.id}|description"
+    instance.redis_key(:description).should == "description_in_redis_model:#{instance.id}:description"
   end
   
   context "before save" do
     it "should not have stored the description in redis" do
       instance = DescriptionInRedisModel.new(description: "A looong description")
-      RedisColumn.redis_instance.get("description_in_redis_model|#{instance.id}|description").should_not be("A looong description".to_yaml)
+      RedisColumn.redis_instance.get("description_in_redis_model:#{instance.id}:description").should_not be("A looong description".to_yaml)
     end
   end
   
   context "when saving" do
-    it "should store the description in redis, with the key ':model_name|:id|:column_name'" do
+    it "should store the description in redis, with the key '<model_name>:<id>:<column_name>'" do
       instance = DescriptionInRedisModel.create!(description: "A looong description")
-      RedisColumn.redis_instance.get("description_in_redis_model|#{instance.id}|description").should == "A looong description".to_yaml
+      RedisColumn.redis_instance.get("description_in_redis_model:#{instance.id}:description").should == "A looong description".to_yaml
     end
   end
   
   context "when saved" do
-    it "should retrive the description from redis, with the key ':model_name|:id|:column_name'" do
+    it "should retrive the description from redis, with the key '<model_name>:<id>:<column_name>'" do
       instance = DescriptionInRedisModel.create!(description: "A looong description")
       instance = DescriptionInRedisModel.find(instance.id)
       instance.description.should == "A looong description"

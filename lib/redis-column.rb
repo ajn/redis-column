@@ -54,7 +54,7 @@ module RedisColumn
       
       # Returns the key to be used in Redis
       def redis_key column_name
-        "#{self.class.model_name.i18n_key}|#{self.id}|#{column_name}"
+        "#{self.class.model_name.i18n_key}:#{self.id}:#{column_name}"
       end
       
       # Read from Redis and unserialise
