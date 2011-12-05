@@ -30,8 +30,10 @@ module RedisColumn
       delegate :redis_columns, :to => "self.class"
       # Allow the instance access to RedisColumn.redis_instance
       delegate :redis_instance, :to => "RedisColumn"
-      # Save the columns after 
+      # Save the columns after_save
       after_save :save_redis_columns!
+      # Delete the columns after_destroy
+      after_destroy :delete_redis_columns!
       # Boosh!
       alias_method_chain :attributes, :redis_columns
     end
@@ -68,6 +70,11 @@ module RedisColumn
         redis_instance.set(redis_key(column_name), val.to_yaml) and return val
       end
       
+      # Delete value from Redis
+      def delete_redis_attribute column_name
+        redis_instance.del(redis_key(column_name))
+      end
+      
       # Returns both the AR attributes and the Redis attributes in one hash
       def attributes_with_redis_columns
         _attributes = attributes_without_redis_columns.with_indifferent_access
@@ -80,6 +87,13 @@ module RedisColumn
       def save_redis_columns!
         redis_columns.each do |column_name|
           write_redis_attribute column_name, send(column_name)
+        end
+      end
+      
+      # Delete all values in Redis
+      def delete_redis_columns!
+        redis_columns.each do |column_name|
+          delete_redis_attribute column_name
         end
       end
       

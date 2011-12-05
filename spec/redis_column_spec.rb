@@ -53,16 +53,29 @@ describe DescriptionInRedisModel do
   end
   
   context "when saved" do
+    before do
+      @instance = DescriptionInRedisModel.create!(description: "A looong description")
+    end
+    
     it "should retrive the description from redis, with the key '<model_name>:<id>:<column_name>'" do
-      instance = DescriptionInRedisModel.create!(description: "A looong description")
-      instance = DescriptionInRedisModel.find(instance.id)
-      instance.description.should == "A looong description"
+      @instance = DescriptionInRedisModel.find(@instance.id)
+      @instance.description.should == "A looong description"
     end
     
     it "should return the redis_columns within :attributes" do
-      instance = DescriptionInRedisModel.create!(string: "A string", description: "A looong description")
-      instance.attributes.should have_key('string')
-      instance.attributes.should have_key('description')
+      @instance.attributes.should have_key('string')
+      @instance.attributes.should have_key('description')
+    end
+    
+    context "And destroying" do
+      before do
+        @instance.destroy
+      end
+      
+      it "should also delete the description from redis" do
+        RedisColumn.redis_instance.get("description_in_redis_model:#{@instance.id}:description").should be_blank
+      end
+      
     end
   end
   
