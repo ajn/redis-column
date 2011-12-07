@@ -30,12 +30,12 @@ module RedisColumn
       delegate :redis_columns, :to => "self.class"
       # Allow the instance access to RedisColumn.redis_instance
       delegate :redis_instance, :to => "RedisColumn"
+      # Assign redis_columns
+      after_initialize :assign_redis_columns
       # Save the columns after_save
       after_save :save_redis_columns!
       # Delete the columns after_destroy
       after_destroy :delete_redis_columns!
-      # Boosh!
-      alias_method_chain :attributes, :redis_columns
     end
 
     module ClassMethods
@@ -43,10 +43,8 @@ module RedisColumn
       # Setup a redis column
       def redis_column column_name
         self.redis_columns += [column_name]
-        attr_writer column_name
-        define_method column_name do # read the attribute or find from Redis and set to instance var
-          send(:instance_variable_get, "@#{column_name}") || send("#{column_name}=", read_redis_attribute(column_name))
-        end
+        define_method(column_name) { @attributes[column_name.to_s] }
+        define_method("#{column_name}=") {|val| @attributes[column_name.to_s] = val }
       end
       alias_method :redis_col, :redis_column
       
@@ -75,18 +73,17 @@ module RedisColumn
         redis_instance.del(redis_key(column_name))
       end
       
-      # Returns both the AR attributes and the Redis attributes in one hash
-      def attributes_with_redis_columns
-        _attributes = attributes_without_redis_columns.with_indifferent_access
-        redis_columns.inject(_attributes) do |res, column_name|
-          res.merge(column_name => send(column_name))
+      # Assigns the values from Redis unless already specified
+      def assign_redis_columns
+        redis_columns.each do |column_name|
+          write_attribute column_name, read_redis_attribute(column_name) unless read_attribute(column_name.to_s).present?
         end
       end
       
       # Save all values back to Redis
       def save_redis_columns!
         redis_columns.each do |column_name|
-          write_redis_attribute column_name, send(column_name)
+          write_redis_attribute column_name, read_attribute(column_name)
         end
       end
       

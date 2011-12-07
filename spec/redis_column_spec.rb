@@ -67,7 +67,19 @@ describe DescriptionInRedisModel do
       @instance.attributes.should have_key('description')
     end
     
-    context "And destroying" do
+    context "and finding" do
+      
+      before do
+        @instance = DescriptionInRedisModel.find(@instance.id)
+      end
+      
+      it "should set the redis_columns after find" do
+        @instance.attributes['description'].should == "A looong description"
+        @instance.description.should == "A looong description"
+      end
+    end
+
+    context "and destroying" do
       before do
         @instance.destroy
       end
@@ -76,6 +88,22 @@ describe DescriptionInRedisModel do
         RedisColumn.redis_instance.get("description_in_redis_model:#{@instance.id}:description").should be_blank
       end
       
+    end
+    
+    context "and duping" do
+      
+      before do
+        @new_instance = @instance.dup
+        @new_instance.save!
+        @new_instance = DescriptionInRedisModel.find(@new_instance.id)
+      end
+      
+      it { @new_instance.should_not == @instance }
+      
+      it "should set the redis_columns after find" do
+        @new_instance.attributes['description'].should == "A looong description"
+        @new_instance.description.should == "A looong description"
+      end
     end
   end
   
