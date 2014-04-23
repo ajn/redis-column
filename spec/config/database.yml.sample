@@ -4,12 +4,12 @@ sqlite3:
 
 mysql:
   adapter: mysql2
-  hostname: localhost
+  host: localhost
   username: root
   password:
   database: redis_column
   charset: utf8
-  
+
 postgresql:
   adapter: postgresql
   hostname: localhost
